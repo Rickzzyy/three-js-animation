@@ -18,3 +18,13 @@ loader.load(
 	function (xhf) {},
 	function (err) {}
 )
+
+const renderer = new THREE.WebGLRenderer({ alpha: true })
+renderer.setSize(window.innerWidth, window.innerHeight)
+document.getElementById('container3D').appendChild(renderer.domElement)
+
+const reRender3D = () => {
+	requestAnimationFrame(reRender3D)
+	renderer.render(scene, camera)
+}
+reRender3D()
