@@ -1,32 +1,48 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js'
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js'
-import { gsap } from 'https://cdn.skypack.dev/gsap'
-
+import modelMove from './components/ModelMover.js'
+import { bee1Position, bee2Position } from './components/Positions.js'
 const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.z = 13
 
 const scene = new THREE.Scene()
 let bee
 let mixer
+
+let bee2
+let mixer2
 const loader = new GLTFLoader()
+
 loader.load(
 	'/minecraft_bee.glb',
 	function (gltf) {
 		bee = gltf.scene
 		scene.add(bee)
-		bee.scale.set(5, 5, 5)
 		mixer = new THREE.AnimationMixer(bee)
 		mixer.clipAction(gltf.animations[0]).play()
-		modelMove()
+		modelMove(bee1Position, bee)
 	},
 	function (xhr) {},
 	function (error) {}
 )
+
+loader.load(
+	'/minecraft_bee.glb',
+	function (gltf) {
+		bee2 = gltf.scene
+		scene.add(bee2)
+		mixer2 = new THREE.AnimationMixer(bee2)
+		mixer2.clipAction(gltf.animations[0]).play()
+		modelMove(bee2Position, bee2)
+	},
+	function (xhr) {},
+	function (error) {}
+)
+
 const renderer = new THREE.WebGLRenderer({ alpha: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.getElementById('container3D').appendChild(renderer.domElement)
 
-// light
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.3)
 scene.add(ambientLight)
 
@@ -38,62 +54,14 @@ const reRender3D = () => {
 	requestAnimationFrame(reRender3D)
 	renderer.render(scene, camera)
 	if (mixer) mixer.update(0.005)
+	if (mixer2) mixer2.update(0.005)
 }
 reRender3D()
 
-let arrPositionModel = [
-	{
-		id: 'banner',
-		position: { x: -1, y: -0.5, z: 0 },
-		rotation: { x: 0, y: -1, z: 0 },
-	},
-	{
-		id: 'intro',
-		position: { x: -1, y: -0, z: -4 },
-		rotation: { x: 0.5, y: 0.5, z: -0.5 },
-	},
-	{
-		id: 'description',
-		position: { x: 1, y: 0.5, z: -5 },
-		rotation: { x: 0, y: 0.5, z: 0 },
-	},
-	{
-		id: 'contact',
-		position: { x: 0.8, y: -0.8, z: 0 },
-		rotation: { x: -0.7, y: -0.9, z: -0.4 },
-	},
-]
-const modelMove = () => {
-	const sections = document.querySelectorAll('.section')
-	let currentSection
-	sections.forEach((section) => {
-		const rect = section.getBoundingClientRect()
-		if (rect.top <= window.innerHeight / 3) {
-			currentSection = section.id
-		}
-	})
-	let position_active = arrPositionModel.findIndex((val) => val.id == currentSection)
-	if (position_active >= 0) {
-		let new_coordinates = arrPositionModel[position_active]
-		gsap.to(bee.position, {
-			x: new_coordinates.position.x,
-			y: new_coordinates.position.y,
-			z: new_coordinates.position.z,
-			duration: 3,
-			ease: 'power1.out',
-		})
-		gsap.to(bee.rotation, {
-			x: new_coordinates.rotation.x,
-			y: new_coordinates.rotation.y,
-			z: new_coordinates.rotation.z,
-			duration: 3,
-			ease: 'power1.out',
-		})
-	}
-}
 window.addEventListener('scroll', () => {
-	if (bee) {
-		modelMove()
+	if (bee && bee2) {
+		modelMove(bee1Position, bee)
+		modelMove(bee2Position, bee2)
 	}
 })
 window.addEventListener('resize', () => {
