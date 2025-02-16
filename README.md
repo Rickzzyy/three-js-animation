@@ -14,7 +14,7 @@ To run the project locally, follow these steps:
 
 1. Clone the repository
 
-git clone https://github.com/Rickzzyy/builder-app.git
+git clone https://github.com/Rickzzyy/three-js-animation.git
 cd three-js-animation
 
 2. Start the development server
